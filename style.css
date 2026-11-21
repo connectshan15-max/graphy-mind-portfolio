@@ -1,0 +1,102 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --white: #FFFFFF;
+  --violet: #6C3BFF;
+  --lavender: #F1EDFF;
+  --dark: #161616;
+  --accent: #B9FF66;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: var(--white);
+  color: var(--dark);
+  overflow-x: hidden;
+}
+
+header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(255,255,255,0.9);
+  backdrop-filter: blur(15px);
+}
+
+.logo {
+  color: var(--violet);
+  font-weight: 800;
+  letter-spacing: -1px;
+}
+
+nav a {
+  transition: color 0.3s ease;
+}
+
+nav a:hover {
+  color: var(--violet);
+}
+
+.hero h1 {
+  font-weight: 800;
+  letter-spacing: -5px;
+}
+
+.hero h1 span {
+  color: var(--violet);
+}
+
+.button {
+  transition: transform 0.3s ease, background 0.3s ease;
+}
+
+.button:hover {
+  background: var(--dark);
+  transform: translateY(-5px);
+}
+
+section {
+  scroll-margin-top: 90px;
+}
+
+#works, #about, #contact {
+  background: var(--lavender);
+  margin: 20px 5%;
+  border-radius: 25px;
+  padding: 80px 8%;
+}
+
+footer {
+  text-align: center;
+}
+
+@media (max-width: 650px) {
+  header {
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+
+  nav a {
+    margin: 0 8px 0 0;
+    font-size: 13px;
+  }
+
+  .hero {
+    padding-top: 100px;
+  }
+
+  .hero h1 {
+    letter-spacing: -3px;
+  }
+}
