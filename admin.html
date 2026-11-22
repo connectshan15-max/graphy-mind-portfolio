@@ -4,82 +4,111 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Login | Graphy Mind</title>
+  <title>Graphy Mind — Admin Dashboard</title>
   <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase.js"></script>
   <style>
-    body {
-      background: #F1EDFF;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
+    body { background: #F1EDFF; min-height: 100vh; }
+    .panel {
+      max-width: 650px; margin: 50px auto; padding: 35px;
+      background: white; border-radius: 22px;
     }
-
-    .login-box {
-      background: white;
-      max-width: 420px;
-      width: 90%;
-      margin: 70px auto;
-      padding: 40px;
-      border-radius: 25px;
-      box-shadow: 0 15px 50px rgba(108,59,255,0.1);
+    h1 { color: #6C3BFF; margin-bottom: 15px; }
+    input, button {
+      width: 100%; padding: 14px; margin: 10px 0;
+      border-radius: 10px; font-size: 16px;
     }
-
-    .login-box h1 {
-      color: #6C3BFF;
-      margin-bottom: 10px;
-    }
-
-    .login-box p {
-      color: #777;
-      margin-bottom: 25px;
-    }
-
-    .login-box input {
-      width: 100%;
-      padding: 15px;
-      margin-bottom: 15px;
-      border: 1px solid #ddd;
-      border-radius: 12px;
-      font-size: 16px;
-    }
-
-    .login-box button {
-      width: 100%;
-      padding: 15px;
-      border: none;
-      background: #6C3BFF;
-      color: white;
-      border-radius: 12px;
-      font-size: 16px;
+    input { border: 1px solid #ddd; }
+    button {
+      border: 0; background: #6C3BFF; color: white;
       cursor: pointer;
     }
-
-    .login-box button:hover {
-      background: #5124d6;
-    }
+    .hidden { display: none; }
+    #message { margin-top: 12px; color: #6C3BFF; }
   </style>
 </head>
 <body>
+  <header>
+    <div class="logo">GRAPHY MIND.</div>
+    <nav><a href="index.html">Visit Website</a></nav>
+  </header>
 
-<header>
-  <div class="logo">GRAPHY MIND.</div>
-</header>
+  <main class="panel">
+    <div id="login">
+      <h1>Admin Login</h1>
+      <p>Sign in with your administrator account.</p>
+      <form id="loginForm">
+        <input id="email" type="email" placeholder="Admin email" required>
+        <input id="password" type="password" placeholder="Password" required>
+        <button type="submit">Sign In</button>
+      </form>
+    </div>
 
-<div class="login-box">
-  <h1>Admin Login</h1>
-  <p>Sign in to manage your portfolio.</p>
+    <div id="dashboard" class="hidden">
+      <h1>Welcome to Graphy Mind!</h1>
+      <p>You are signed in.</p>
+      <h2>Poster manager</h2>
+      <p>The upload and editing tools will be added next.</p>
+      <button id="logout">Log Out</button>
+    </div>
+    <p id="message"></p>
+  </main>
 
-  <form>
-    <input type="email" placeholder="Admin email" required>
-    <input type="password" placeholder="Password" required>
+  <script>
+    const client = window.supabaseClient;
+    const message = document.getElementById("message");
 
-    <button type="submit">Login</button>
-  </form>
+    async function checkAdmin() {
+      if (!client) {
+        message.textContent = "Supabase connection not ready. Check supabase.js.";
+        return;
+      }
+      const { data: { session } } = await client.auth.getSession();
+      if (!session) return;
 
-  <p style="margin-top:20px;text-align:center;">
-    Private access · Graphy Mind
-  </p>
-</div>
+      const { data, error } = await client
+        .from("admins")
+        .select("user_id")
+        .eq("user_id", session.user.id)
+        .maybeSingle();
 
+      if (error || !data) {
+        message.textContent = "This account is not an authorized admin.";
+        await client.auth.signOut();
+        return;
+      }
+
+      document.getElementById("login").classList.add("hidden");
+      document.getElementById("dashboard").classList.remove("hidden");
+    }
+
+    document.getElementById("loginForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (!client) {
+        message.textContent = "Supabase connection not ready.";
+        return;
+      }
+
+      message.textContent = "Signing in...";
+      const { error } = await client.auth.signInWithPassword({
+        email: document.getElementById("email").value,
+        password: document.getElementById("password").value
+      });
+
+      if (error) {
+        message.textContent = error.message;
+        return;
+      }
+      await checkAdmin();
+    });
+
+    document.getElementById("logout").addEventListener("click", async () => {
+      await client.auth.signOut();
+      location.reload();
+    });
+
+    checkAdmin();
+  </script>
 </body>
 </html>
